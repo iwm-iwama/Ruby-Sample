@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 #coding:utf-8
 
-VERSION = "iwm20230923"
+VERSION = "iwm20230924"
 TITLE = "時間を付与してコピーを作成"
 
 require "fileutils"
@@ -42,7 +42,7 @@ def SubHelp()
 		"    \033[97m#{bn} \033[91m[input] ...\n" +
 		"\n" +
 		" \033[93m(例)\n" +
-		"    \033[97m#{bn} \033[91m\"./file1\" \"./file2\""
+		"    \033[97m#{bn} \033[91m\"./file1\" ..."
 	)
 	SubEnd()
 end
@@ -90,6 +90,8 @@ $AddStr << case STDIN.gets.to_i
 		SubEnd()
 end
 
+$AryFiles = []
+
 ARGV.each do |_s1|
 	$IDF   = File.expand_path(_s1)
 	$IDir  = File.dirname($IDF)
@@ -99,13 +101,27 @@ ARGV.each do |_s1|
 	$OFile << $AddStr
 	$OFile << File.extname($IDF)
 
-	FileUtils.cp("#{$IDF}", "#{$IDir}/#{$OFile}")
-
 	puts(
 		"\n" +
 		"\033[92m=\033[97m #{$IDir}/\033[92m#{$IFile}\n" +
-		"\033[93m+\033[97m #{$IDir}/\033[93m#{$OFile}"
+		"\033[96m+\033[97m #{$IDir}/\033[96m#{$OFile}"
 	)
+
+	$AryFiles << ["#{$IDF}", "#{$IDir}/#{$OFile}"]
 end
 
+print(
+	"\n" +
+	"\033[93m実行しますか? [Y/n] \033[97m"
+)
+if ! (STDIN.getch =~ /Y/i)
+	puts
+	SubEnd()
+end
+
+$AryFiles.each do |_a1|
+	FileUtils.cp(_a1[0], _a1[1])
+end
+
+puts
 SubEnd()

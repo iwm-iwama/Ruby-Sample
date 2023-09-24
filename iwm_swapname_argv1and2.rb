@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 #coding:utf-8
 
-VERSION = "iwm20230923"
+VERSION = "iwm20230924"
 TITLE = "ファイル名を交換"
 
 require "io/console"
@@ -52,32 +52,40 @@ if ARGV.length < 2 || ARGV[0] == "--help" || ARGV[0] == "-h"
 	SubHelp()
 end
 
-$iFn1, $iFn2 = ARGV[0..1]
-
 $flg = true
 
-if ! File.exist?($iFn1)
-	puts "\033[91m[1] \"#{$iFn1}\" は存在しない"
-	$flg = false
-end
-
-if ! File.exist?($iFn2)
-	puts "\033[91m[2] \"#{$iFn2}\" は存在しない"
-	$flg = false
+i1 = 0
+ARGV[0..1].each do |_s1|
+	i1 += 1
+	if ! File.exist?(_s1)
+		puts "\033[91m[#{i1}] \"#{_s1}\" は存在しない"
+		$flg = false
+	end
 end
 
 if ! $flg
 	SubEnd()
 end
 
-tmpName = "#{$$}.txt"
-	File.rename($iFn1, tmpName)
-	File.rename($iFn2, $iFn1)
-	File.rename(tmpName, $iFn2)
 puts(
-	"\033[92m#{$iFn1}\n" +
-	"\033[93m  ↓\033[92m↑\n" +
-	"\033[93m#{$iFn2}"
+	"\033[92m#{ARGV[0]}\n" +
+	"\033[96m  ↓\033[92m↑\n" +
+	"\033[96m#{ARGV[1]}"
 )
 
+print(
+	"\n" +
+	"\033[93m実行しますか? [Y/n] \033[97m"
+)
+if ! (STDIN.getch =~ /Y/i)
+	puts
+	SubEnd()
+end
+
+tmpName = "#{$$}.tmp"
+File.rename(ARGV[0], tmpName)
+File.rename(ARGV[1], ARGV[0])
+File.rename(tmpName, ARGV[1])
+
+puts
 SubEnd()
