@@ -1,0 +1,40 @@
+#!/bin/dash
+# Ver.iwm20230402
+#--------------------------------------------------------------------------------
+# 使用例（"pv" "yad" をインストール）
+#   dash: iwm_SubPkgInstall "pv" "yad"
+#   ruby: %x(iwm_SubPkgInstall "pv" "yad")
+#--------------------------------------------------------------------------------
+Pkg=""
+
+for _s1
+do
+	if [ ! -e "/usr/bin/${_s1}" ]
+	then
+		Pkg="${Pkg}${_s1} "
+	fi
+done
+
+if [ -n "${Pkg}" ]
+then
+	# 環境変数 $TERM に付与された Debian仕様？ のカラーオプションを消去
+	#   "xterm-256color" => "xterm"
+	#   "rxvt-unicode-256color" => "rxvt-unicode"
+	Term="${TERM%-*color}"
+	case "${Term}" in
+		xterm)
+			xterm \
+				-title "必要なパッケージをインストール" \
+				-fa "Liberation Mono:size=11:antialias=true" \
+				-e "sudo $(iwm_RtnPkgManager) install ${Pkg}; sleep 3;"
+			;;
+		rxvt-unicode)
+			# rxvt-unicode -e オプションの仕様??（訳分からん）
+			rxvt-unicode -e sudo $(iwm_RtnPkgManager) install ${Pkg}
+			;;
+		*)
+			;;
+	esac
+else
+	true
+fi
