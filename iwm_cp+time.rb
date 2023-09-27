@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 #coding:utf-8
 
-VERSION = "iwm20230924"
+VERSION = "iwm20230925"
 TITLE = "時間を付与してコピーを作成"
 
 require "fileutils"
@@ -57,25 +57,29 @@ if ARGV.length < 1 || ARGV[0] == "--help" || ARGV[0] == "-h"
 	SubHelp()
 end
 
-$T = Time.now.strftime("%Y%m%d_%H%M%S")
-$D = $T[0, 8]
+TM = Time.now.strftime("%Y%m%d_%H%M%S")
+DT = TM[0, 8]
+
+AryMenu = [
+	[1, "日",       DT],
+	[2, "時",       TM],
+	[3, "任意入力", ""]
+]
 
 $AddStr = "_"
 
-print(
-	"\033[93m付与する情報\n" +
-	"\033[93m  1\033[97m  日 #{$D}\n" +
-	"\033[93m  2\033[97m  時 #{$T}\n" +
-	"\033[93m  3\033[97m  任意入力\n" +
-	"\033[93m?\033[97m "
-)
+puts "\033[93m付与する情報"
+AryMenu.each do |_a1|
+	printf("\033[93m%3d\033[97m  %s %s\n", _a1[0], _a1[1], _a1[2])
+end
+print "\033[93m?\033[97m "
 $AddStr << case STDIN.gets.to_i
 	when 1
-		$D
+		AryMenu[0][2]
 	when 2
-		$T
+		AryMenu[1][2]
 	when 3
-		print "\n\033[95m付与文字列? \033[97m"
+		print "\n\033[95m付与文字列 ? \033[97m"
 		# 禁止文字を変換
 		(
 			# Windows は要エンコード
@@ -85,7 +89,7 @@ $AddStr << case STDIN.gets.to_i
 			else
 				STDIN.gets
 			end
-		).strip.gsub(/[\\\/\:\*\?\"\<\>\|]/, "")
+		).strip.gsub(/[\\\/\:\*\?\"\<\>\|]/){""}
 	else
 		SubEnd()
 end
@@ -112,7 +116,7 @@ end
 
 print(
 	"\n" +
-	"\033[93m実行しますか? [Y/n] \033[97m"
+	"\033[93m実行しますか ? [Y/n] \033[97m"
 )
 if ! (STDIN.getch =~ /Y/i)
 	puts

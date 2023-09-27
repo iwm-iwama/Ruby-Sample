@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 #coding:utf-8
 
-VERSION = "iwm20230924"
+VERSION = "iwm20230925"
 TITLE = "ファイル名を交換"
 
 require "io/console"
@@ -75,7 +75,7 @@ puts(
 
 print(
 	"\n" +
-	"\033[93m実行しますか? [Y/n] \033[97m"
+	"\033[93m実行しますか ? [Y/n] \033[97m"
 )
 if ! (STDIN.getch =~ /Y/i)
 	puts

@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 #coding:utf-8
 
-VERSION = "iwm20230924"
+VERSION = "iwm20230925"
 TITLE = "ファイル１から２へ上書きコピー"
 
 require "fileutils"
@@ -78,7 +78,7 @@ end
 
 print(
 	"\n" +
-	"\033[93m実行しますか? [Y/n] \033[97m"
+	"\033[93m実行しますか ? [Y/n] \033[97m"
 )
 if ! (STDIN.getch =~ /Y/i)
 	puts

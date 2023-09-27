@@ -1,8 +1,8 @@
 #!/usr/bin/ruby
 #coding:utf-8
 
-VERSION = "iwm20230924"
-TITLE = "バックアップするデバイス?"
+VERSION = "iwm20230926"
+TITLE = "デバイスをバックアップ"
 
 require "io/console"
 
@@ -39,7 +39,8 @@ end
 
 def SubEnd()
 	Term.reset()
-	puts "\n(END)"
+	print "\n(END)"
+	STDIN.getch
 	exit
 end
 
@@ -90,7 +91,7 @@ $ArySelectDevNum = []
 
 # 複数指定する際は 空白 か "," で区切る
 # (例) > "2,3 5" => [2, 3, 5]
-print "\033[93m?\033[97m "
+print "\033[93m? \033[97m"
 STDIN.gets.split(/[, ]/).each do |_s1|
 	_i1 = _s1.to_i
 	if _i1 > 0 && _i1 < $AryFDisk.length
@@ -102,7 +103,7 @@ if $ArySelectDevNum.length == 0
 	SubEnd()
 end
 
-title = "出力フォルダ?"
+title = "出力フォルダ ?"
 $OD = %x(yad --file --filename="/home/#{USER}" --directory --title="#{title}" --width=320 --center --on-top).strip
 if $OD.length == 0
 	SubEnd()
@@ -110,7 +111,7 @@ end
 puts(
 	"\n" +
 	"\033[93m#{title}\n" +
-	"\033[97m> \033[96m#{$OD}"
+	"\033[97m> \033[95m#{$OD}"
 )
 
 $AryExec = []
@@ -140,7 +141,7 @@ end
 
 print(
 	"\n" +
-	"\033[93m実行しますか? [Y/n] \033[97m"
+	"\033[93m実行しますか ? [Y/n] \033[97m"
 )
 if ! (STDIN.getch =~ /Y/i)
 	puts
@@ -163,19 +164,13 @@ $AryExec.each do |_a1|
 	_CMD << " | pv | gzip -c > #{_OF1}"
 
 	# Restore用 Readme作成
-	File.open(_OF2, "w") do
-		|_fs|
-
-		_s1 = "gzip -d < ./#{File.basename(_OF1)} | pv | sudo dd of=#{_IF} conv=noerror"
-		_s1 << (
-			_Obyte < 0 ?
-			" bs=4M" :
-			" bs=#{_Obyte} count=1"
-		)
+	File.open(_OF2, "w") do |_fs|
+		_s1 = "gzip -d < ./#{File.basename(_OF1)} | pv | sudo dd of=#{_IF} conv=noerror "
+		_s1 << (_Obyte < 0 ? "bs=4M" : "bs=#{_Obyte} count=1")
 		_s1 << "\n\n"
 
 		%x(lsblk -o NAME,SIZE,FSTYPE,LABEL #{_IF}).split("\n").each do |_s2|
-			_s1 << "# #{_s2.gsub("└─", "└")}\n"
+			_s1 << "# #{_s2.gsub("└─"){"└"}}\n"
 		end
 
 		_fs.puts _s1
@@ -192,10 +187,14 @@ $AryExec.each do |_a1|
 
 	# Command 実行
 	print "\033[36m"
-	system _CMD
-	system "sudo chown #{USER} #{_OF1} #{_OF2}"
-	system "sudo chgrp #{USER} #{_OF1} #{_OF2}"
-	system "sudo chmod 644 #{_OF1} #{_OF2}"
+	[
+		_CMD,
+		"sudo chown #{USER} #{_OF1} #{_OF2}",
+		"sudo chgrp #{USER} #{_OF1} #{_OF2}",
+		"sudo chmod 644 #{_OF1} #{_OF2}"
+	].each do |_s1|
+		system _s1
+	end
 
 	# 終了時間
 	timeEnd = Time.now
