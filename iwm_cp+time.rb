@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 #coding:utf-8
 
-VERSION = "iwm20230925"
+VERSION = "iwm20230928"
 TITLE = "時間を付与してコピーを作成"
 
 require "fileutils"
@@ -25,7 +25,7 @@ end
 
 def SubBgn()
 	puts(
-		"\n" +
+		"",
 		"\033[97;104m #{TITLE} \033[0m"
 	)
 end
@@ -39,9 +39,9 @@ end
 def SubHelp()
 	bn = File.basename($0)
 	puts(
-		"    \033[97m#{bn} \033[91m[input] ...\n" +
-		"\n" +
-		" \033[93m(例)\n" +
+		"    \033[97m#{bn} \033[91m[input] ...",
+		"",
+		" \033[93m(例)",
 		"    \033[97m#{bn} \033[91m\"./file1\" ..."
 	)
 	SubEnd()
@@ -106,8 +106,8 @@ ARGV.each do |_s1|
 	$OFile << File.extname($IDF)
 
 	puts(
-		"\n" +
-		"\033[92m=\033[97m #{$IDir}/\033[92m#{$IFile}\n" +
+		"",
+		"\033[92m=\033[97m #{$IDir}/\033[92m#{$IFile}",
 		"\033[96m+\033[97m #{$IDir}/\033[96m#{$OFile}"
 	)
 
@@ -115,7 +115,7 @@ ARGV.each do |_s1|
 end
 
 print(
-	"\n" +
+	"\n",
 	"\033[93m実行しますか ? [Y/n] \033[97m"
 )
 if ! (STDIN.getch =~ /Y/i)

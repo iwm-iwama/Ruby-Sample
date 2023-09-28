@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 #coding:utf-8
 
-VERSION = "iwm20230926"
+VERSION = "iwm20230928"
 TITLE = "デバイスをバックアップ"
 
 require "io/console"
@@ -32,7 +32,7 @@ end
 
 def SubBgn()
 	puts(
-		"\n" +
+		"",
 		"\033[97;104m #{TITLE} \033[0m"
 	)
 end
@@ -109,15 +109,15 @@ if $OD.length == 0
 	SubEnd()
 end
 puts(
-	"\n" +
-	"\033[93m#{title}\n" +
+	"",
+	"\033[93m#{title}",
 	"\033[97m> \033[95m#{$OD}"
 )
 
 $AryExec = []
 
 puts(
-	"\n" +
+	"",
 	"\033[93m出力ファイル"
 )
 $ArySelectDevNum.each do |_i1|
@@ -127,8 +127,8 @@ $ArySelectDevNum.each do |_i1|
 	_OF2 = "#{_OF1}_restore.readme"
 
 	puts(
-		"\033[97m> #{_i1}\n" +
-		"  \033[96m#{_OF1}\n" +
+		"\033[97m> #{_i1}",
+		"  \033[96m#{_OF1}",
 		"  \033[96m#{_OF2}"
 	)
 
@@ -140,7 +140,7 @@ $ArySelectDevNum.each do |_i1|
 end
 
 print(
-	"\n" +
+	"\n",
 	"\033[93m実行しますか ? [Y/n] \033[97m"
 )
 if ! (STDIN.getch =~ /Y/i)
@@ -177,7 +177,7 @@ $AryExec.each do |_a1|
 	end
 
 	puts(
-		"\n" +
+		"",
 		"\033[97m> \033[96m#{_OF1}"
 	)
 

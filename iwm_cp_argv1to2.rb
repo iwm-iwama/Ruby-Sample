@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 #coding:utf-8
 
-VERSION = "iwm20230925"
+VERSION = "iwm20230928"
 TITLE = "ファイル１から２へ上書きコピー"
 
 require "fileutils"
@@ -25,7 +25,7 @@ end
 
 def SubBgn()
 	puts(
-		"\n" +
+		"",
 		"\033[97;104m #{TITLE} \033[0m"
 	)
 end
@@ -39,9 +39,9 @@ end
 def SubHelp()
 	bn = File.basename($0)
 	puts(
-		"    \033[97m#{bn} \033[91m[input] [output ...]\n" +
-		"\n" +
-		" \033[93m(例)\n" +
+		"    \033[97m#{bn} \033[91m[input] [output ...]",
+		"",
+		" \033[93m(例)",
 		"    \033[97m#{bn} \033[91m\"./file1\" \"./file2\" ..."
 	)
 	SubEnd()
@@ -69,7 +69,7 @@ if ! $flg
 end
 
 puts(
-	"\033[92m#{ARGV[0]}\n" +
+	"\033[92m#{ARGV[0]}",
 	"\033[96m  ↓"
 )
 ARGV[1..].each do |_s1|
@@ -77,7 +77,7 @@ ARGV[1..].each do |_s1|
 end
 
 print(
-	"\n" +
+	"\n",
 	"\033[93m実行しますか ? [Y/n] \033[97m"
 )
 if ! (STDIN.getch =~ /Y/i)
