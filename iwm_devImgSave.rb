@@ -69,7 +69,7 @@ $i1 = 0;
 		$i1 += 1
 	elsif _a1[0] =~ /disk/i
 		$AryFDisk << [-1, _a1[1], _a1[2], "", ""]
-		printf("  \033[97;41m%-3d%-16s%-32s\033[0m\n", $i1, _a1[1], _a1[2])
+		printf("  \033[97;44m%-3d%-16s%-32s\033[0m\n", $i1, _a1[1], _a1[2])
 		$i1 += 1
 		# MBR 512byte
 		$AryFDisk << [512, _a1[1], "MBR512", "", ""]
@@ -183,10 +183,10 @@ $AryExec.each do |_a1|
 
 	# 開始時間
 	timeBgn = Time.now
-	puts "\033[34m#{timeBgn}"
+	puts "\033[37m#{timeBgn}"
 
 	# Command 実行
-	print "\033[36m"
+	print "\033[37m"
 	[
 		_CMD,
 		"sudo chown #{USER} #{_OF1} #{_OF2}",
@@ -204,7 +204,7 @@ $AryExec.each do |_a1|
 			iM = (_d1 / 60).to_i
 		_d1 -= iM * 60
 			iS = _d1.to_i
-	puts "\033[34m#{timeEnd}"
+	puts "\033[37m#{timeEnd}"
 	printf("[%02d:%02d:%02d]\n", iH, iM, iS)
 end
 
