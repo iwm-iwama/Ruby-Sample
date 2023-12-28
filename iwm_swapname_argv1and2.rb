@@ -1,10 +1,9 @@
 #!/usr/bin/ruby
 #coding:utf-8
+# Mruby互換
 
-VERSION = "iwm20230928"
+VERSION = "iwm20231217"
 TITLE = "ファイル名を交換"
-
-require "io/console"
 
 class ClassTerm
 	def clear()
@@ -17,35 +16,53 @@ class ClassTerm
 end
 Term = ClassTerm.new()
 
-Signal.trap(:INT) do
-	Term.reset()
-	exit
-end
-
 def SubBgn()
 	puts(
 		"",
-		"\033[97;104m #{TITLE} \033[0m"
+		"\033[97;104m #{TITLE} \033[49m"
 	)
 end
 
 def SubEnd()
 	Term.reset()
-	puts "\n(END)"
+	puts "\033[0m\n(END)"
 	exit
 end
 
+def RtnHashDirFile(
+	sIFn = ""
+)
+	a1 = /(.+[\\\/])*(.+?)$/.match(sIFn)[1..].to_a
+	i1 = 0
+	while i1 < a1.length
+		if a1[i1] == nil
+			a1[i1] = ""
+		end
+		i1 += 1
+	end
+	return{
+		'dir'  => a1[0],
+		'file' => a1[1]
+	}
+end
+
 def SubHelp()
-	bn = File.basename($0)
+	bn = RtnHashDirFile($0)['file']
 	puts(
-		"    \033[97m#{bn} \033[91m[input1] [input2]",
+		"    \033[96mruby \033[97m#{bn} \033[91m[input1] [input2]",
 		"",
 		" \033[93m(例)",
-		"    \033[97m#{bn} \033[91m\"./file1\" \"./file2\""
+		"    \033[96mruby \033[97m#{bn} \033[91m\"./file1\" \"./file2\""
 	)
 	SubEnd()
 end
 
+Signal.trap(:INT) do
+	Term.reset()
+	exit
+end
+
+Term.clear()
 SubBgn()
 
 if ARGV.length < 2 || ARGV[0] == "--help" || ARGV[0] == "-h"
@@ -55,10 +72,13 @@ end
 $flg = true
 
 i1 = 0
-ARGV[0..1].each do |_s1|
+ARGV[0..1].each do |s1|
 	i1 += 1
-	if ! File.exist?(_s1)
-		puts "\033[91m[#{i1}] \"#{_s1}\" は存在しない"
+	begin
+		# 存在しないときは例外発生
+		File.open(s1, "rb") do |_IFs| end
+	rescue
+		puts "\033[91m[#{i1}] \"#{s1}\" は存在しない"
 		$flg = false
 	end
 end
@@ -69,16 +89,15 @@ end
 
 puts(
 	"\033[92m#{ARGV[0]}",
-	"\033[96m  ↓\033[92m↑",
+	"\033[92m  ↓\033[96m↑",
 	"\033[96m#{ARGV[1]}"
 )
 
-print(
-	"\n",
-	"\033[93m実行しますか ? [Y/n] \033[97m"
-)
-if ! (STDIN.getch =~ /Y/i)
-	puts
+puts
+print "\033[93m実行しますか ? [Y/n] \033[97m"
+sKey = STDIN.gets.strip
+
+if ! (sKey =~ /Y/i)
 	SubEnd()
 end
 
@@ -87,5 +106,4 @@ File.rename(ARGV[0], tmpName)
 File.rename(ARGV[1], ARGV[0])
 File.rename(tmpName, ARGV[1])
 
-puts
 SubEnd()

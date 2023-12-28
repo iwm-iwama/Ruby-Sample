@@ -1,11 +1,10 @@
 #!/usr/bin/ruby
 #coding:utf-8
 
-VERSION = "iwm20230928"
-TITLE = "時間を付与してコピーを作成"
+VERSION = "iwm20231228"
+TITLE   = "時間を付与してコピーを作成"
 
 require "fileutils"
-require "io/console"
 
 class ClassTerm
 	def clear()
@@ -18,43 +17,88 @@ class ClassTerm
 end
 Term = ClassTerm.new()
 
-Signal.trap(:INT) do
-	Term.reset()
-	exit
-end
-
 def SubBgn()
 	puts(
 		"",
-		"\033[97;104m #{TITLE} \033[0m"
+		"\033[97;104m #{TITLE} \033[49m"
 	)
 end
 
 def SubEnd()
 	Term.reset()
-	puts "\n(END)"
+	puts "\033[0m\n(END)"
 	exit
 end
 
+def RtnHashDirFile(
+	sIFn = ""
+)
+	a1 = /(.+[\\\/])*(.+?)$/.match(sIFn)[1..].to_a
+	i1 = 0
+	while i1 < a1.length
+		if a1[i1] == nil
+			a1[i1] = ""
+		end
+		i1 += 1
+	end
+	return{
+		'd' => a1[0],
+		'f' => a1[1]
+	}
+end
+
 def SubHelp()
-	bn = File.basename($0)
+	bn = RtnHashDirFile($0)['f']
 	puts(
-		"    \033[97m#{bn} \033[91m[input] ...",
+		"    \033[96mruby \033[97m#{bn} \033[91m[input] ...",
 		"",
 		" \033[93m(例)",
-		"    \033[97m#{bn} \033[91m\"./file1\" ..."
+		"    \033[96mruby \033[97m#{bn} \033[91m\"./file1\" ..."
 	)
 	SubEnd()
 end
 
-SubBgn()
+def RtnFnWithStr(
+	sIFn = "",
+	sAdd = ""
+)
+	if sAdd.length == 0
+		return sIFn
+	end
 
-ARGV.delete_if do |_s1|
-	! File.file?(_s1)
+	a1 = sIFn.split(/[\\\/]/)
+	a2 = a1[a1.length - 1].split(".")
+	i1 = (a2.length < 2 ? 1 : 2)
+	a2[a2.length - i1] << "_#{sAdd}"
+	return a2.join(".")
 end
 
-if ARGV.length < 1 || ARGV[0] == "--help" || ARGV[0] == "-h"
+Signal.trap(:INT) do
+	Term.reset()
+	exit
+end
+
+Term.clear()
+SubBgn()
+
+if ARGV.length == 0
 	SubHelp()
+end
+
+$Argv = []
+ARGV.each do |s1|
+	begin
+		if(File.directory?(s1))
+			raise
+		end
+		File.open(s1, "rb")
+		$Argv << s1
+	rescue
+	end
+end
+
+if $Argv.length == 0
+	SubEnd()
 end
 
 TM = Time.now.strftime("%Y%m%d_%H%M%S")
@@ -66,66 +110,53 @@ AryMenu = [
 	[3, "任意入力", ""]
 ]
 
-$AddStr = "_"
-
 puts "\033[93m付与する情報"
-AryMenu.each do |_a1|
-	printf("\033[93m%3d\033[97m  %s %s\n", _a1[0], _a1[1], _a1[2])
+AryMenu.each do |a1|
+	printf("\033[93m%3d  \033[97m%s  \033[92m%s\n", a1[0], a1[1], a1[2])
 end
 print "\033[93m?\033[97m "
-$AddStr << case STDIN.gets.to_i
+sKey = STDIN.gets.strip
+
+$AddStr = ""
+$AddStr << case sKey.to_i
 	when 1
 		AryMenu[0][2]
 	when 2
 		AryMenu[1][2]
 	when 3
-		print "\n\033[95m付与文字列 ? \033[97m"
-		# 禁止文字を変換
-		(
-			# Windows は要エンコード
-			if Dir.exist?("c:\\windows")
-				STDIN.set_encoding("cp932")
-				STDIN.gets.encode("cp65001", invalid: :replace, replace: "")
-			else
-				STDIN.gets
-			end
-		).strip.gsub(/[\\\/\:\*\?\"\<\>\|]/){""}
+		puts
+		print "\033[95m付与文字列 ? \033[97m"
+		# Windows禁止文字を変換
+		sKey = STDIN.gets.strip
+		sKey.strip.gsub(/[\\\/\:\*\?\"\<\>\|]/){""}
 	else
 		SubEnd()
 end
 
 $AryFiles = []
-
-ARGV.each do |_s1|
-	$IDF   = File.expand_path(_s1)
-	$IDir  = File.dirname($IDF)
-	$IFile = File.basename($IDF)
-
-	$OFile = File.basename($IDF, ".*")
-	$OFile << $AddStr
-	$OFile << File.extname($IDF)
-
+$Argv.each do |sIFn|
+	hDF = RtnHashDirFile(sIFn)
+	sOFn = RtnFnWithStr(sIFn, $AddStr)
 	puts(
 		"",
-		"\033[92m=\033[97m #{$IDir}/\033[92m#{$IFile}",
-		"\033[96m+\033[97m #{$IDir}/\033[96m#{$OFile}"
+		"\033[95m= \033[97m#{hDF['d']}\033[95m#{hDF['f']}",
+		"\033[95m+ #{sOFn}",
 	)
-
-	$AryFiles << ["#{$IDF}", "#{$IDir}/#{$OFile}"]
+	$AryFiles << [sIFn, sOFn]
 end
+puts
+print "\033[93m実行しますか ? [Y/n] \033[97m"
+sKey = STDIN.gets.strip
 
-print(
-	"\n",
-	"\033[93m実行しますか ? [Y/n] \033[97m"
-)
-if ! (STDIN.getch =~ /Y/i)
-	puts
+if ! (sKey =~ /Y/i)
 	SubEnd()
 end
 
-$AryFiles.each do |_a1|
-	FileUtils.cp(_a1[0], _a1[1])
+$AryFiles.each do |a1|
+	FileUtils.cp(
+		a1[0],
+		RtnHashDirFile(a1[0])['d'] + a1[1]
+	)
 end
 
-puts
 SubEnd()
