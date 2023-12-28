@@ -1,10 +1,8 @@
 #!/usr/bin/ruby
 #coding:utf-8
 
-VERSION = "iwm20230928"
+VERSION = "iwm20231224"
 TITLE = "デバイスをバックアップ"
-
-require "io/console"
 
 class ClassTerm
 	def clear()
@@ -40,7 +38,7 @@ end
 def SubEnd()
 	Term.reset()
 	print "\n(END)"
-	STDIN.getch
+	STDIN.gets
 	exit
 end
 
@@ -73,11 +71,11 @@ $i1 = 0;
 		$i1 += 1
 		# MBR 512byte
 		$AryFDisk << [512, _a1[1], "MBR512", "", ""]
-		printf("  \033[36m%-3d%-16s%s\n", $i1, _a1[1], "MBR512")
+		printf("  \033[94m%-3d%-16s%s\n", $i1, _a1[1], "MBR512")
 		$i1 += 1
 		# MBR 512byte * 2048sector
 		$AryFDisk << [(512 * 2048), _a1[1], "MBR512x2048", "", ""]
-		printf("  \033[94m%-3d%-16s%s\n", $i1, _a1[1], "MBR512x2048")
+		printf("  \033[36m%-3d%-16s%s\n", $i1, _a1[1], "MBR512x2048")
 		$i1 += 1
 	elsif _a1[0] =~ /part/i
 		$AryFDisk << [-1, _a1[1], _a1[2], _a1[3], _a1[4]]
@@ -143,8 +141,7 @@ print(
 	"\n",
 	"\033[93m実行しますか ? [Y/n] \033[97m"
 )
-if ! (STDIN.getch =~ /Y/i)
-	puts
+if ! (STDIN.gets.strip =~ /Y/i)
 	SubEnd()
 end
 
