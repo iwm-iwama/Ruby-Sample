@@ -1,7 +1,7 @@
-#!/usr/bin/ruby
+#!ruby
 #coding:utf-8
 
-VERSION = "iwm20231228"
+VERSION = "iwm20240206"
 TITLE   = "時間を付与してコピーを作成"
 
 require "fileutils"
@@ -88,7 +88,8 @@ end
 $Argv = []
 ARGV.each do |s1|
 	begin
-		if(File.directory?(s1))
+		if(! File.exist?(s1) || File.directory?(s1))
+			puts "\033[95m ファイル名？ '#{s1}'\033[0m"
 			raise
 		end
 		File.open(s1, "rb")
@@ -145,10 +146,10 @@ $Argv.each do |sIFn|
 	$AryFiles << [sIFn, sOFn]
 end
 puts
-print "\033[93m実行しますか ? [Y/n] \033[97m"
-sKey = STDIN.gets.strip
+print "\033[93m実行しますか ? [Yes=1／No=0] \033[97m"
+iKey = STDIN.gets.to_i
 
-if ! (sKey =~ /Y/i)
+if iKey != 1
 	SubEnd()
 end
 
