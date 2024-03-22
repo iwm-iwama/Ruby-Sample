@@ -1,7 +1,9 @@
-#!ruby
+#!/usr/bin/env ruby
 #coding:utf-8
 
-VERSION = "iwm20240310"
+require "reline"
+
+VERSION = "iwm20240320"
 
 class Terminal
 	def clear()
@@ -24,142 +26,196 @@ def SubEnd()
 	exit
 end
 
+LN = "-" * 60
+
 HELP = <<EOD
-------------------------------------------------------------
- \033[93m[Enter] ２回\033[97m        計算実行                               
- \033[93m[Space]＋[↑／↓]\033[97m   入力履歴                               
-------------------------------------------------------------
- \033[96mコマンド\033[97m                                                   
-   .q                終了                                   
-   .r                再起動                                 
-   .a                変数 一覧                              
-   .da               変数 全消去                            
-   .d[NUM]           変数 [NUM]を消去 d0, d1, ...           
-------------------------------------------------------------
- \033[96m数式\033[97m                                                       
-   pi                π = 3.141592653589793                 
-   *                 3 * 2     => 6                         
-   /                 3.0 / 2.0 => 1.5                       
-                     3 / 2     => 1                         
-   %                 3 % 2     => 1                         
-   +                 3 + 2     => 5                         
-   -                 3 - 2     => 1                         
-   **                3 ** 2    => 9                         
-   sqrt(n)           sqrt(4)   => 2.0                       
-   sin(n°)          sin(30)   => 0.5                       
-   cos(n°)          cos(60)   => 0.5                       
-   tan(n°)          tan(45)   => 1.0                       
-------------------------------------------------------------
- \033[96m例\033[97m                                                         
-   > i1 = pi ↲                                              
-   > i2 = 180 ↲                                             
-   > .a ↲                                                   
-   [0] i1 = pi ↲                                            
-   [1] i2 = 180 ↲                                           
-   > i1 / i2 ↲                                              
-   > ↲                                                      
-   i1 = Math::PI;i2 = 180;i1 / i2                           
-   0.017453292519943295                                     
-------------------------------------------------------------
+#{LN}
+	基本操作
+		[Enter]２回	計算実行
+		[↑／↓]	履歴
+#{LN}
+	コマンド
+		.q	終了
+		.r	再起動
+		.u	ユーザ設定 一覧
+		.ud	　　　　　 全消去
+		.ud[NUM]	　　　　　 [NUM]を消去
+		.i	入力履歴 一覧
+#{LN}
+	数式
+		*	3 * 2	=> 6
+		/	3.0 / 2.0	=> 1.5
+			3 / 2	=> 1
+		%	3 % 2	=> 1
+		+	3 + 2	=> 5
+		-	3 - 2	=> 1
+		**	3 ** 2 	=> 9
+		:pi	3.141592653589793
+		:sqrt(n)	sqrt(4)	=> 2.0
+		:sin(n°)	sin(30)	=> 0.5
+		:cos(n°)	cos(60)	=> 0.5
+		:tan(n°)	tan(45)	=> 1.0
+#{LN}
+	例１
+		> i1 = :pi ↲
+		> i2 = 180 ↲
+		> i1 / i2 ↲
+		i1 = Math::PI; i2 = 180; i1 / i2;
+		0.017453292519943295
+
+	例２
+		> def foo() :pi / 180 end ↲
+		> foo() ↲
+		def foo() Math::PI / 180 end; foo();
+		0.017453292519943295
+#{LN}
 EOD
 
 def SubHelp()
-	print "\033[97;44m Ver.#{VERSION} \n#{HELP}\033[0m"
+	puts "\033[97;44m Ver.#{VERSION} \033[49m"
+	_BG = " " * 60
+	HELP.split("\n").each do |_s1|
+		print "\033[44m", _BG
+		a1 = _s1.split("\t")
+		if a1[0]
+			print "\r", "\033[97m", a1[0]
+		end
+		if a1[1]
+			print "\r", "\033[1C",  "\033[96m", a1[1]
+		end
+		if a1[2]
+			print "\r", "\033[4C",  "\033[93m", a1[2]
+		end
+		if a1[3]
+			print "\r", "\033[17C", "\033[97m", a1[3]
+		end
+		if a1[4]
+			print "\r", "\033[30C", "\033[95m", a1[4]
+		end
+		puts "\033[49m"
+	end
+	print "\033[0m"
 end
+
+# Math::PI / 180
+PiPerDeg = 0.017453292519943295
+
+# User Defined
+$AryUserDefined = []
 
 def main()
 	Term.clear()
 
 	SubHelp()
 
-	$AryVar = []
-	$Exec = ""
+	while true
+		# 空白データ 排除
+		input = Reline.readline("> ", false).strip
 
-	print "> "
-	while input = STDIN.gets.strip
+		# 複数空白を集約
+		input.gsub!(/\s{2,}/, " ")
+
+		if input.length > 0
+			# 重複データ 排除
+			Reline::HISTORY.delete(input)
+			Reline::HISTORY << input
+		end
+
 		case input
+			# ""
 			when ""
-				if $Exec.length > 0
-						_s1 = ""
-						$AryVar.each do |s|
-							_s1 << s + ";"
-						end
-						_s1 << $Exec
+				print
 
-						# Math::PI / 180
-						_PiPerDeg = 0.017453292519943295
-
-						# Math関係／大小文字を区別しない
-						_s1.gsub!(/Math::/i, "")
-						_s1.gsub!(/pi/i, "Math::PI")
-						_s1.gsub!(/sqrt\(/i, "Math::sqrt(")
-						_s1.gsub!(/sin\((.+?)\)/i){ "Math::sin(#{$1} * #{_PiPerDeg}).round(4)" }
-						_s1.gsub!(/cos\((.+?)\)/i){ "Math::cos(#{$1} * #{_PiPerDeg}).round(4)" }
-						_s1.gsub!(/tan\((.+?)\)/i){ "Math::tan(#{$1} * #{_PiPerDeg}).round(4)" }
-
-						# 6/2(1+2)=9 と計算
-						if _s1 =~ /(\d\s*\()|(\)\s*\d)/
-							_s1.gsub!(/\s+/, "")
-							_s1.gsub!(/(\d)\s*(\()/, "\\1*\\2")
-							_s1.gsub!(/(\))\s*(\d)/, "\\1*\\2")
-							_s1.gsub!(/([\+\-\*\/])/, " \\1 ")
-							puts "> #{_s1}"
-						end
-
-						puts "\033[96m#{_s1}\033[93m"
-
-					begin
-						print eval(_s1).to_s
-					rescue Exception => e
-						puts "\033[95m#[Err] #{e.to_s.strip}"
-					rescue => e
-						puts "\033[95m[Err] #{e.to_s.strip}"
- 					end
-
-					Term.reset()
-					puts
-				end
-
-			when ".q"
-				SubEnd()
+			# .q
+			when /\.q$/i
 				break
 
+			# .r
 			when ".r"
 				main()
 				break
 
-			when ".a"
-				_i1 = 0
-				print "\033[96m"
-				$AryVar.each do |s|
-					printf("[%d] %s\n", _i1, s)
-					_i1 += 1
+			# .u
+			when ".u"
+				puts "\033[97;44m User Defined \033[49m"
+				print "\033[92m"
+				if $AryUserDefined.length == 0
+					puts "[]"
+				else
+					i1 = 1
+					$AryUserDefined.each do |_s|
+						puts "[#{i1}] #{_s}"
+						i1 += 1
+					end
 				end
 				Term.reset()
-				input = ""
 
-			when ".da"
-				$AryVar = []
-				input = ""
+			# .ud
+			when ".ud"
+				$AryUserDefined = []
 
-			when /\.d\d+/
-				$AryVar.delete_at(input[1 .. -1].to_i)
-				_i1 = 0
-				$AryVar.each do |s|
-					printf("[%d] %s\n", _i1, s)
-					_i1 += 1
+			# .ud[NUM]
+			when /\.ud\d+/
+				begin
+					i1 = input[3].to_i
+					$AryUserDefined.delete_at(i1 - 1)
+				rescue => e
+ 				end
+
+			# .i
+			when /\.i$/i
+				puts "\033[97;44m Input History \033[49m"
+				print "\033[92m"
+				p Reline::HISTORY
+				Term.reset()
+
+			# def
+			when /^(def\s)/
+				# 関数 置換
+				s1 = input.split(/\s*\(/)[0]
+				$AryUserDefined.delete_if{ |_s| _s =~ /^#{s1}/ }
+				$AryUserDefined << input
+
+			# =
+			when /.+\=.+/
+				# 変数 置換
+				s1 = input.split(/\s*\=/)[0]
+				$AryUserDefined.delete_if{ |_s| _s =~ /^#{s1}/ }
+				$AryUserDefined << input
+
+			# Calculate
+			else
+				s1 = ""
+
+				$AryUserDefined.each do |_s|
+					s1 << _s
+					s1 << "; "
 				end
-				input = ""
-		end
 
-		if input.include?("=")
-			$AryVar << input
-			$Exec = ""
-		else
-			$Exec = input
-		end
+				s1 << input
+				s1 << ";"
 
-		print "> "
+				# Math 置換
+				s1.gsub!(/:pi/i, "Math::PI")
+				s1.gsub!(/:sqrt\(/i, "Math::sqrt(")
+				s1.gsub!(/:sin\((.+?)\)/i){ "Math::sin(#{$1} * #{PiPerDeg}).round(4)" }
+				s1.gsub!(/:cos\((.+?)\)/i){ "Math::cos(#{$1} * #{PiPerDeg}).round(4)" }
+				s1.gsub!(/:tan\((.+?)\)/i){ "Math::tan(#{$1} * #{PiPerDeg}).round(4)" }
+
+				puts "\033[96m#{s1}\033[93m"
+
+				# 計算
+				begin
+					print eval(s1).to_s
+				rescue Exception => e
+					print "\033[91m[Err] #{e.to_s.strip}"
+				rescue => e
+					print "\033[91m[Err] #{e.to_s.strip}"
+ 				end
+
+				Term.reset()
+				puts
+		end
 	end
 end
 
