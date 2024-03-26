@@ -3,7 +3,7 @@
 
 require "reline"
 
-VERSION = "iwm20240320"
+VERSION = "iwm20240324"
 
 class Terminal
 	def clear()
@@ -37,6 +37,7 @@ HELP = <<EOD
 	コマンド
 		.q	終了
 		.r	再起動
+		.rd	再起動／履歴消去
 		.u	ユーザ設定 一覧
 		.ud	　　　　　 全消去
 		.ud[NUM]	　　　　　 [NUM]を消去
@@ -94,7 +95,7 @@ def SubHelp()
 		end
 		puts "\033[49m"
 	end
-	print "\033[0m"
+	Term.reset()
 end
 
 # Math::PI / 180
@@ -105,6 +106,7 @@ $AryUserDefined = []
 
 def main()
 	Term.clear()
+	Term.reset()
 
 	SubHelp()
 
@@ -135,9 +137,16 @@ def main()
 				main()
 				break
 
+			# .rd
+			when ".rd"
+				$AryUserDefined.clear
+				Reline::HISTORY.clear
+				main()
+				break
+
 			# .u
 			when ".u"
-				puts "\033[97;44m User Defined \033[49m"
+				puts "\033[37;41m User Defined \033[49m"
 				print "\033[92m"
 				if $AryUserDefined.length == 0
 					puts "[]"
@@ -148,7 +157,6 @@ def main()
 						i1 += 1
 					end
 				end
-				Term.reset()
 
 			# .ud
 			when ".ud"
@@ -164,17 +172,22 @@ def main()
 
 			# .i
 			when /\.i$/i
-				puts "\033[97;44m Input History \033[49m"
+				puts "\033[37;41m Input History \033[49m"
 				print "\033[92m"
-				p Reline::HISTORY
-				Term.reset()
+				Reline::HISTORY.each do |_s|
+					print "  ", _s, "\n"
+				end
 
 			# def
-			when /^(def\s)/
-				# 関数 置換
-				s1 = input.split(/\s*\(/)[0]
-				$AryUserDefined.delete_if{ |_s| _s =~ /^#{s1}/ }
-				$AryUserDefined << input
+			when /^(def)/
+				if input =~ /^(def\s.+\send$)/
+					# 関数 置換
+					s1 = input.split(/\s*\(/)[0]
+					$AryUserDefined.delete_if{ |_s| _s =~ /^#{s1}/ }
+					$AryUserDefined << input
+				else
+					Reline::HISTORY.delete(input)
+				end
 
 			# =
 			when /.+\=.+/
@@ -186,14 +199,13 @@ def main()
 			# Calculate
 			else
 				s1 = ""
-
 				$AryUserDefined.each do |_s|
+					s1 << "  "
 					s1 << _s
-					s1 << "; "
+					s1 << "\n"
 				end
-
+				s1 << "  "
 				s1 << input
-				s1 << ";"
 
 				# Math 置換
 				s1.gsub!(/:pi/i, "Math::PI")
@@ -206,16 +218,14 @@ def main()
 
 				# 計算
 				begin
-					print eval(s1).to_s
-				rescue Exception => e
-					print "\033[91m[Err] #{e.to_s.strip}"
+					print "    ", eval(s1).to_s
 				rescue => e
 					print "\033[91m[Err] #{e.to_s.strip}"
  				end
-
-				Term.reset()
 				puts
 		end
+
+		Term.reset()
 	end
 end
 
