@@ -3,7 +3,7 @@
 
 require "reline"
 
-VERSION = "iwm20240324"
+VERSION = "iwm20240324A"
 
 class Terminal
 	def clear()
@@ -26,22 +26,24 @@ def SubEnd()
 	exit
 end
 
-LN = "-" * 60
+WIDTH = 60
+LN = "-" * WIDTH
 
+# \t区切り
 HELP = <<EOD
 #{LN}
 	基本操作
-		[Enter]２回	計算実行
+		[Enter]	計算実行
 		[↑／↓]	履歴
 #{LN}
 	コマンド
 		.q	終了
 		.r	再起動
 		.rd	再起動／履歴消去
-		.u	ユーザ設定 一覧
-		.ud	　　　　　 全消去
-		.ud[NUM]	　　　　　 [NUM]を消去
-		.i	入力履歴 一覧
+		.u	ユーザ設定　一覧
+		.ud	〃　全消去
+		.ud[NUM]	〃　[NUM]を消去
+		.i	入力履歴　一覧
 #{LN}
 	数式
 		*	3 * 2	=> 6
@@ -74,25 +76,15 @@ EOD
 
 def SubHelp()
 	puts "\033[97;44m Ver.#{VERSION} \033[49m"
-	_BG = " " * 60
+	_BG = " " * WIDTH
 	HELP.split("\n").each do |_s1|
 		print "\033[44m", _BG
 		a1 = _s1.split("\t")
-		if a1[0]
-			print "\r", "\033[97m", a1[0]
-		end
-		if a1[1]
-			print "\r", "\033[1C",  "\033[96m", a1[1]
-		end
-		if a1[2]
-			print "\r", "\033[4C",  "\033[93m", a1[2]
-		end
-		if a1[3]
-			print "\r", "\033[17C", "\033[97m", a1[3]
-		end
-		if a1[4]
-			print "\r", "\033[30C", "\033[95m", a1[4]
-		end
+		if a1[0] then print "\r", "\033[97m",             a1[0] end
+		if a1[1] then print "\r", "\033[1C",  "\033[96m", a1[1] end
+		if a1[2] then print "\r", "\033[4C",  "\033[93m", a1[2] end
+		if a1[3] then print "\r", "\033[17C", "\033[97m", a1[3] end
+		if a1[4] then print "\r", "\033[27C", "\033[95m", a1[4] end
 		puts "\033[49m"
 	end
 	Term.reset()
