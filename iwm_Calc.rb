@@ -3,7 +3,7 @@
 
 require "reline"
 
-VERSION = "iwm20240324A"
+VERSION = "iwm20240416"
 
 class Terminal
 	def clear()
@@ -80,11 +80,11 @@ def SubHelp()
 	HELP.split("\n").each do |_s1|
 		print "\033[44m", _BG
 		a1 = _s1.split("\t")
-		if a1[0] then print "\r", "\033[97m",             a1[0] end
-		if a1[1] then print "\r", "\033[1C",  "\033[96m", a1[1] end
-		if a1[2] then print "\r", "\033[4C",  "\033[93m", a1[2] end
-		if a1[3] then print "\r", "\033[17C", "\033[97m", a1[3] end
-		if a1[4] then print "\r", "\033[27C", "\033[95m", a1[4] end
+		if a1[0] then print "\033[1G",  "\033[97m", a1[0] end
+		if a1[1] then print "\033[2G",  "\033[96m", a1[1] end
+		if a1[2] then print "\033[5G",  "\033[93m", a1[2] end
+		if a1[3] then print "\033[18G", "\033[97m", a1[3] end
+		if a1[4] then print "\033[29G", "\033[95m", a1[4] end
 		puts "\033[49m"
 	end
 	Term.reset()
@@ -182,11 +182,13 @@ def main()
 				end
 
 			# =
-			when /.+\=.+/
+			when /.+\=.*/
 				# 変数 置換
-				s1 = input.split(/\s*\=/)[0]
-				$AryUserDefined.delete_if{ |_s| _s =~ /^#{s1}/ }
-				$AryUserDefined << input
+				a1 = input.split(/\s*\=/)
+				if a1[1]
+					$AryUserDefined.delete_if{ |_s| _s =~ /^#{a1[0]}/ }
+					$AryUserDefined << input
+				end
 
 			# Calculate
 			else
