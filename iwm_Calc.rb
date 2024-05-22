@@ -3,7 +3,7 @@
 
 require "reline"
 
-VERSION = "iwm20240416"
+VERSION = "iwm20240424"
 
 class Terminal
 	def clear()
@@ -188,6 +188,8 @@ def main()
 				if a1[1]
 					$AryUserDefined.delete_if{ |_s| _s =~ /^#{a1[0]}/ }
 					$AryUserDefined << input
+				else
+					$AryUserDefined << input + "0"
 				end
 
 			# Calculate
