@@ -1,14 +1,14 @@
 #!ruby
 #coding:utf-8
 
-VERSION = "iwm20240206"
+VERSION = "iwm20240525"
 TITLE   = "時間を付与してコピーを作成"
 
 require "fileutils"
 
 class ClassTerm
 	def clear()
-		print "\033[2J\033[H"
+		print "\033[2J\033[1;1H"
 	end
 
 	def reset()

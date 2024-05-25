@@ -2,12 +2,12 @@
 #coding:utf-8
 # Mruby互換
 
-VERSION = "iwm20231217"
+VERSION = "iwm20240525"
 TITLE = "ファイル名を交換"
 
 class ClassTerm
 	def clear()
-		print "\033[2J\033[H"
+		print "\033[2J\033[1;1H"
 	end
 
 	def reset()

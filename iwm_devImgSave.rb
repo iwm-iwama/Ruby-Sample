@@ -1,12 +1,12 @@
 #!/usr/bin/ruby
 #coding:utf-8
 
-VERSION = "iwm20231224"
+VERSION = "iwm20240525"
 TITLE = "デバイスをバックアップ"
 
 class ClassTerm
 	def clear()
-		print "\033[2J\033[H"
+		print "\033[2J\033[1;1H"
 	end
 
 	def reset()
@@ -57,7 +57,7 @@ $AryFDisk = []
 
 SubBgn()
 
-puts "\033[97m複数選択するときは , で区切る (例) 2,3,5"
+puts "\033[97m複数選択するときは [SPACE] で区切る (例) 2 3 5"
 $i1 = 0;
 %x(lsblk -l -o TYPE,NAME,SIZE,FSTYPE,LABEL #{DEV}/* 2>/dev/null).split("\n").each do |_s1|
 	_a1 = _s1.strip.split(/\s+/)
@@ -87,10 +87,10 @@ end
 # 番号選択
 $ArySelectDevNum = []
 
-# 複数指定する際は 空白 か "," で区切る
-# (例) > "2,3 5" => [2, 3, 5]
+# 複数指定する際は [SPACE] か ',' で区切る
+# (例) > "2 3 5" => [2, 3, 5]
 print "\033[93m? \033[97m"
-STDIN.gets.split(/[, ]/).each do |_s1|
+STDIN.gets.split(/[ ,]/).each do |_s1|
 	_i1 = _s1.to_i
 	if _i1 > 0 && _i1 < $AryFDisk.length
 		$ArySelectDevNum << _i1
@@ -126,8 +126,8 @@ $ArySelectDevNum.each do |_i1|
 
 	puts(
 		"\033[97m> #{_i1}",
-		"  \033[96m#{_OF1}",
-		"  \033[96m#{_OF2}"
+		"  \033[95m#{_OF1}",
+		"  \033[95m#{_OF2}"
 	)
 
 	# Rename
@@ -175,7 +175,7 @@ $AryExec.each do |_a1|
 
 	puts(
 		"",
-		"\033[97m> \033[96m#{_OF1}"
+		"\033[97m> \033[95m#{_OF1}"
 	)
 
 	# 開始時間

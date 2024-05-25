@@ -1,14 +1,14 @@
 #!/usr/bin/ruby
 #coding:utf-8
 
-VERSION = "iwm20231227"
+VERSION = "iwm20240525"
 TITLE = "ファイル１から２へ上書きコピー"
 
 require "fileutils"
 
 class ClassTerm
 	def clear()
-		print "\033[2J\033[H"
+		print "\033[2J\033[1;1H"
 	end
 
 	def reset()
