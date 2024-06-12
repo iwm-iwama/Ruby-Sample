@@ -3,7 +3,7 @@
 
 require "reline"
 
-VERSION = "iwm20240424"
+VERSION = "iwm20240612"
 
 class Terminal
 	def clear()
@@ -212,10 +212,14 @@ def main()
 
 				puts "\033[96m#{s1}\033[93m"
 
-				# 計算
+				# Calculate
 				begin
 					print "    ", eval(s1).to_s
+				# Error
 				rescue => e
+					print "\033[91m[Err] #{e.to_s.strip}"
+				# Error: Syntax
+				rescue Exception => e
 					print "\033[91m[Err] #{e.to_s.strip}"
  				end
 				puts
