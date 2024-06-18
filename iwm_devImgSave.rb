@@ -1,8 +1,12 @@
 #!/usr/bin/env ruby
 #coding:utf-8
 
-VERSION = "iwm20240606"
+VERSION = "iwm20240617"
 TITLE = "デバイスをバックアップ"
+
+BG01                = " " * 60
+COLOR_BG01          = "\033[48;2;0;0;95m"
+COLOR_F_DarkOrchid  = "\033[38;2;153;50;204m"
 
 class ClassTerm
 	def clear()
@@ -55,11 +59,9 @@ DEV = "/dev"
 # [0]byte, [1]NAME, [2]SIZE, [3]FSTYPE, [4]LABEL
 $AryFDisk = []
 
-BG = " " * 58
-
 SubBgn()
 
-puts "\033[97m複数選択するときは [SPACE] で区切る (例) 2 3 5"
+print "\033[37m", "複数選択するときは [SPACE] で区切る (例) 2 3 5", "\n"
 $i1 = 0;
 %x(lsblk -l -o TYPE,NAME,SIZE,FSTYPE,LABEL #{DEV}/* 2>/dev/null).split("\n").each do |_s1|
 	_a1 = _s1.strip.split(/\s+/)
@@ -69,19 +71,19 @@ $i1 = 0;
 		$i1 += 1
 	elsif _a1[0] =~ /disk/i
 		$AryFDisk << [-1, _a1[1], _a1[2], "", ""]
-		print "\033[3G", "\033[97;44m", BG, "\033[3G", $i1.to_s, "\033[6G", _a1[1], "\033[20G", _a1[2], "\033[49m", "\n"
+		print COLOR_BG01, BG01, "\033[3G", "\033[97m", "\033[3G", $i1.to_s, "\033[6G", _a1[1], "\033[20G", _a1[2], "\033[49m", "\n"
 		$i1 += 1
 		# MBR 512byte
 		$AryFDisk << [512, _a1[1], "MBR512", "", ""]
-		print "\033[3G", "\033[94m", $i1.to_s, "\033[6G", _a1[1], "\033[20G", "MBR512", "\n"
+		print "\033[3G", "\033[97m", $i1.to_s, "\033[6G", "\033[36m", _a1[1], "\033[20G", "MBR512", "\n"
 		$i1 += 1
 		# MBR 512byte * 2048sector
 		$AryFDisk << [(512 * 2048), _a1[1], "MBR512x2048", "", ""]
-		print "\033[3G", "\033[36m", $i1.to_s, "\033[6G", _a1[1], "\033[20G", "MBR512x2048", "\n"
+		print "\033[3G", "\033[97m", $i1.to_s, "\033[6G", "\033[36m", _a1[1], "\033[20G", "MBR512x2048", "\n"
 		$i1 += 1
 	elsif _a1[0] =~ /part/i
 		$AryFDisk << [-1, _a1[1], _a1[2], _a1[3], _a1[4]]
-		print "\033[3G", "\033[97m", $i1.to_s, "\033[6G", _a1[1], "\033[20G", _a1[2], "\033[30G", "\033[92m", _a1[3], "\033[97m", "\033[38G", _a1[4], "\n"
+		print "\033[3G", "\033[97m", $i1.to_s, "\033[6G", _a1[1], "\033[20G", _a1[2], "\033[30G", "\033[32m", _a1[3], "\033[92m", "\033[38G", _a1[4], "\n"
 		$i1 += 1
 	end
 end
@@ -126,10 +128,10 @@ $ArySelectDevNum.each do |_i1|
 	_OF1 = "#{_IF}-#{_IfSize}.dd.gz"
 	_OF2 = "#{_OF1}_restore.readme"
 
-	puts(
-		"\033[97m> #{_i1}",
-		"  \033[95m#{_OF1}",
-		"  \033[95m#{_OF2}"
+	print(
+		"\033[97m> ", _i1, "\n",
+		"\033[3G", "\033[95m", _OF1, "\n",
+		"\033[3G", COLOR_F_DarkOrchid, _OF2, "\n"
 	)
 
 	# Rename
