@@ -1,32 +1,37 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 #coding:utf-8
 
-VERSION = "iwm20240525"
-TITLE = "ファイル１から２へ上書きコピー"
+VERSION = "iwm20241005"
+TITLE = "ファイル [1] から [2] へ上書きコピー"
 
 require "fileutils"
 
 class ClassTerm
-	def clear()
+	def clear
 		print "\033[2J\033[1;1H"
 	end
 
-	def reset()
+	def reset
 		print "\033[0m"
 	end
 end
-Term = ClassTerm.new()
+Term = ClassTerm.new
 
 def SubBgn()
-	puts(
-		"",
-		"\033[97;104m #{TITLE} \033[49m"
+	print(
+		"\n",
+		"\033[97;104m ", TITLE, " \033[49m",
+		"\n"
 	)
 end
 
 def SubEnd()
-	Term.reset()
-	puts "\033[0m\n(END)"
+	Term.reset
+	print(
+		"\n",
+		"(END)",
+		"\n\n"
+	)
 	exit
 end
 
@@ -41,70 +46,69 @@ def RtnHashDirFile(
 		end
 		i1 += 1
 	end
-	return{
-		'd' => a1[0],
-		'f' => a1[1]
-	}
+	return { 'd' => a1[0], 'f' => a1[1] }
 end
 
 def SubHelp()
 	bn = RtnHashDirFile($0)['f']
-	puts(
-		"    \033[96mruby \033[97m#{bn} \033[91m[input] [output ...]",
-		"",
-		" \033[93m(例)",
-		"    \033[96mruby \033[97m#{bn} \033[91m\"./file1\" \"./file2\" ..."
+	print(
+		"\033[5G", "\033[96mruby \033[97m#{bn} \033[91m[input] [output ...]",
+		"\n",
+		"\n",
+		"\033[2G", "\033[93m(例)",
+		"\n",
+		"\033[5G", "\033[96mruby \033[97m#{bn} \033[91m\"./file1\" \"./file2\" ...",
+		"\n"
 	)
 	SubEnd()
 end
 
 Signal.trap(:INT) do
-	Term.reset()
+	Term.reset
 	exit
 end
 
-Term.clear()
+Term.clear
 SubBgn()
 
 if ARGV.length < 2 || ARGV[0] == "--help" || ARGV[0] == "-h"
 	SubHelp()
 end
 
-$flg = true
-
 i1 = 0
 ARGV.each do |s1|
 	i1 += 1
 	begin
-		# 存在しないときは例外発生
-		File.open(s1, "rb") do |_IFs| end
+		# オープン可能なファイルか？
+		File.open(s1, "r") do end
 	rescue
 		puts "\033[91m[#{i1}] \"#{s1}\" は存在しない"
-		$flg = false
+		SubEnd()
 	end
 end
 
-if ! $flg
-	SubEnd()
-end
-
-puts(
-	"\033[92m#{ARGV[0]}",
-	"\033[92m  ↓"
+print(
+	"\033[97m[1] \033[92m#{ARGV[0]}",
+	"\n",
+	"\033[5G", "\033[97m↓",
+	"\n"
 )
 ARGV[1..].each do |s1|
-	puts "\033[96m#{s1}"
+	puts "\033[97m[2] \033[96m#{s1}"
 end
-puts
-print "\033[93m実行しますか ? [Y/n] \033[97m"
+
+print(
+	"\n",
+	"\033[93m", "実行しますか [Yes=1／No=0]",
+	"\n",
+	"? ",
+	"\033[97m"
+)
 sKey = STDIN.gets.strip
-
-if ! (sKey =~ /Y/i)
-	SubEnd()
-end
-
-ARGV[1..].each do |s1|
-	FileUtils.cp(ARGV[0], s1)
+if sKey.downcase == "y" || sKey.to_i == 1
+	ARGV[1..].each do |s1|
+		FileUtils.cp(ARGV[0], s1)
+	end
 end
 
 SubEnd()

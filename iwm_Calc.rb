@@ -3,7 +3,7 @@
 
 require "reline"
 
-VERSION = "iwm20240612"
+VERSION = "iwm20241002"
 
 class Terminal
 	def clear()
@@ -53,24 +53,23 @@ HELP = <<EOD
 		+	3 + 2	=> 5
 		-	3 - 2	=> 1
 		**	3 ** 2 	=> 9
-		:pi	3.141592653589793
-		:sqrt(n)	sqrt(4)	=> 2.0
-		:sin(n°)	sin(30)	=> 0.5
-		:cos(n°)	cos(60)	=> 0.5
-		:tan(n°)	tan(45)	=> 1.0
+		Sqrt(n)	Sqrt(4)	=> 2.0
+		Pi	3.141592653589793
+		Rad	0.017453292519943
+		Sin(n)	Sin(30 * Rad)	=> 0.5
+		Cos(n)	Cos(60 * Rad)	=> 0.5
+		Tan(n)	Tan(45 * Rad)	=> 1.0
 #{LN}
-	例１
-		> i1 = :pi ↲
+	(例１)
+		> i1 = Pi ↲
 		> i2 = 180 ↲
 		> i1 / i2 ↲
-		i1 = Math::PI; i2 = 180; i1 / i2;
-		0.017453292519943295
+		    0.017453292519943
 
-	例２
-		> def foo() :pi / 180 end ↲
+	(例２)
+		> def foo() Pi / 180 end ↲
 		> foo() ↲
-		def foo() Math::PI / 180 end; foo();
-		0.017453292519943295
+		    0.017453292519943
 #{LN}
 EOD
 
@@ -84,14 +83,11 @@ def SubHelp()
 		if a1[1] then print "\033[2G",  "\033[96m", a1[1] end
 		if a1[2] then print "\033[5G",  "\033[93m", a1[2] end
 		if a1[3] then print "\033[18G", "\033[97m", a1[3] end
-		if a1[4] then print "\033[29G", "\033[95m", a1[4] end
+		if a1[4] then print "\033[32G", "\033[95m", a1[4] end
 		puts "\033[49m"
 	end
 	Term.reset()
 end
-
-# Math::PI / 180
-PiPerDeg = 0.017453292519943295
 
 # User Defined
 $AryUserDefined = []
@@ -204,23 +200,34 @@ def main()
 				s1 << input
 
 				# Math 置換
-				s1.gsub!(/:pi/i, "Math::PI")
-				s1.gsub!(/:sqrt\(/i, "Math::sqrt(")
-				s1.gsub!(/:sin\((.+?)\)/i){ "Math::sin(#{$1} * #{PiPerDeg}).round(4)" }
-				s1.gsub!(/:cos\((.+?)\)/i){ "Math::cos(#{$1} * #{PiPerDeg}).round(4)" }
-				s1.gsub!(/:tan\((.+?)\)/i){ "Math::tan(#{$1} * #{PiPerDeg}).round(4)" }
+				s1 = s1
+					.gsub("Sqrt(", "Math::sqrt(")
+					.gsub("Sin(",  "Math::sin(")
+					.gsub("Cos(",  "Math::cos(")
+					.gsub("Tan(",  "Math::tan(")
+					.gsub("Rad",   "Math::PI/180")
+					.gsub("Pi",    "Math::PI")
 
 				puts "\033[96m#{s1}\033[93m"
 
 				# Calculate
 				begin
-					print "    ", eval(s1).to_s
+					print(
+						"    ",
+						eval(s1).round(15)
+					)
 				# Error
 				rescue => e
-					print "\033[91m[Err] #{e.to_s.strip}"
+					puts(
+						"",
+						"\033[91m[Err] #{e.to_s.strip}"
+					)
 				# Error: Syntax
 				rescue Exception => e
-					print "\033[91m[Err] #{e.to_s.strip}"
+					puts(
+						"",
+						"\033[91m[Err] #{e.to_s.strip}"
+					)
  				end
 				puts
 		end
