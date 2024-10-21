@@ -1,39 +1,39 @@
 #!/usr/bin/env ruby
 #coding:utf-8
 
-VERSION = "iwm20241005"
+VERSION = "iwm20241014"
 TITLE   = "時間を付与してコピーを作成"
 
 require "fileutils"
 
-class ClassTerm
-	def clear
+class ClassTerminal
+	def begin()
+		print(
+			"\n",
+			"\033[97;104m ", TITLE, " \033[49m",
+			"\n"
+		)
+	end
+
+	def end()
+		Term.reset
+		print(
+			"\n",
+			"(END)",
+			"\n\n"
+		)
+		exit
+	end
+
+	def clear()
 		print "\033[2J\033[1;1H"
 	end
 
-	def reset
+	def reset()
 		print "\033[0m"
 	end
 end
-Term = ClassTerm.new
-
-def SubBgn()
-	print(
-		"\n",
-		"\033[97;104m ", TITLE, " \033[49m",
-		"\n"
-	)
-end
-
-def SubEnd()
-	Term.reset
-	print(
-		"\n",
-		"(END)",
-		"\n\n"
-	)
-	exit
-end
+Term = ClassTerminal.new
 
 def RtnHashDirFile(
 	sIFn = ""
@@ -60,7 +60,7 @@ def SubHelp()
 		"\033[5G", "\033[96mruby \033[97m#{bn} \033[91m\"./file1\" ...",
 		"\n"
 	)
-	SubEnd()
+	Term.end
 end
 
 def RtnFnWithStr(
@@ -83,7 +83,7 @@ Signal.trap(:INT) do
 end
 
 Term.clear
-SubBgn()
+Term.begin
 
 if ARGV.length == 0
 	SubHelp()
@@ -101,7 +101,7 @@ ARGV.each do |s1|
 	end
 end
 if $Argv.length == 0
-	SubEnd()
+	Term.end
 end
 
 TM = Time.now.strftime("%Y%m%d_%H%M%S")
@@ -144,7 +144,7 @@ case STDIN.gets.strip.to_i
 		# Windows禁止文字を変換
 		$AddStr = sKey.strip.gsub(/[\\\/\:\*\?\"\<\>\|]/){""}
 	else
-		SubEnd()
+		Term.end
 end
 
 $AryFiles = []
@@ -160,15 +160,12 @@ $Argv.each do |sIFn|
 	)
 	$AryFiles << [sIFn, sOFn]
 end
+
 print(
 	"\n",
-	"\033[93m", "実行しますか [Yes=1／No=0]",
-	"\n",
-	"? ",
-	"\033[97m"
+	"\033[95m実行しますか \033[97m\033[45m Yes=1 \033[49m\n\033[95m?\033[97m "
 )
-sKey = STDIN.gets.strip
-if sKey.downcase == "y" || sKey.to_i == 1
+if STDIN.gets.strip == "1"
 	$AryFiles.each do |a1|
 		FileUtils.cp(
 			a1[0],
@@ -177,4 +174,4 @@ if sKey.downcase == "y" || sKey.to_i == 1
 	end
 end
 
-SubEnd()
+Term.end

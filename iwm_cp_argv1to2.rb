@@ -1,12 +1,30 @@
 #!/usr/bin/env ruby
 #coding:utf-8
 
-VERSION = "iwm20241005"
+VERSION = "iwm20241014"
 TITLE = "ファイル [1] から [2] へ上書きコピー"
 
 require "fileutils"
 
-class ClassTerm
+class ClassTerminal
+	def begin()
+		print(
+			"\n",
+			"\033[97;104m ", TITLE, " \033[49m",
+			"\n"
+		)
+	end
+
+	def end()
+		Term.reset
+		print(
+			"\n",
+			"(END)",
+			"\n\n"
+		)
+		exit
+	end
+
 	def clear
 		print "\033[2J\033[1;1H"
 	end
@@ -15,25 +33,7 @@ class ClassTerm
 		print "\033[0m"
 	end
 end
-Term = ClassTerm.new
-
-def SubBgn()
-	print(
-		"\n",
-		"\033[97;104m ", TITLE, " \033[49m",
-		"\n"
-	)
-end
-
-def SubEnd()
-	Term.reset
-	print(
-		"\n",
-		"(END)",
-		"\n\n"
-	)
-	exit
-end
+Term = ClassTerminal.new
 
 def RtnHashDirFile(
 	sIFn = ""
@@ -60,7 +60,7 @@ def SubHelp()
 		"\033[5G", "\033[96mruby \033[97m#{bn} \033[91m\"./file1\" \"./file2\" ...",
 		"\n"
 	)
-	SubEnd()
+	Term.end
 end
 
 Signal.trap(:INT) do
@@ -69,22 +69,10 @@ Signal.trap(:INT) do
 end
 
 Term.clear
-SubBgn()
+Term.begin
 
 if ARGV.length < 2 || ARGV[0] == "--help" || ARGV[0] == "-h"
 	SubHelp()
-end
-
-i1 = 0
-ARGV.each do |s1|
-	i1 += 1
-	begin
-		# オープン可能なファイルか？
-		File.open(s1, "r") do end
-	rescue
-		puts "\033[91m[#{i1}] \"#{s1}\" は存在しない"
-		SubEnd()
-	end
 end
 
 print(
@@ -99,16 +87,20 @@ end
 
 print(
 	"\n",
-	"\033[93m", "実行しますか [Yes=1／No=0]",
-	"\n",
-	"? ",
-	"\033[97m"
+	"\033[95m実行しますか \033[97m\033[45m Yes=1 \033[49m\n\033[95m?\033[97m "
 )
-sKey = STDIN.gets.strip
-if sKey.downcase == "y" || sKey.to_i == 1
-	ARGV[1..].each do |s1|
-		FileUtils.cp(ARGV[0], s1)
+if STDIN.gets.strip == "1"
+	begin
+		# オープン可能なファイルか？
+		File.open(ARGV[0], "r") do end
+
+		ARGV[1..].each do |s1|
+			# 上書き先が存在しないときは作成
+			FileUtils.cp(ARGV[0], s1)
+		end
+	rescue => e
+		puts "\033[91m#{e.to_s}"
 	end
 end
 
-SubEnd()
+Term.end
