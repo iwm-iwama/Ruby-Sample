@@ -1,2 +1,2 @@
 @echo off
-ruby.exe c:\bin\iwm_cp+time.rb %*
+ruby.exe c:\bin\iwm_cp_time.rb %*

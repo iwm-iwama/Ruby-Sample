@@ -3,7 +3,7 @@
 
 require "reline"
 
-VERSION = "iwm20241014"
+VERSION = "iwm20241116"
 
 class ClassTerminal
 	def end()
@@ -61,14 +61,14 @@ HELP = <<EOD
 		Tan(n)	Tan(45 * Rad)	=> 1.0
 #{LN}
 	(例１)
-		> i1 = Pi ↲
-		> i2 = 180 ↲
-		> i1 / i2 ↲
+		> i1 = Pi ↵
+		> i2 = 180 ↵
+		> i1 / i2 ↵
 		    0.017453292519943
 
 	(例２)
-		> def foo() Pi / 180 end ↲
-		> foo() ↲
+		> def foo() Pi / 180 end ↵
+		> foo() ↵
 		    0.017453292519943
 #{LN}
 EOD
