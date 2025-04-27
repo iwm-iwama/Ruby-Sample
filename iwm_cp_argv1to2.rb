@@ -1,39 +1,58 @@
 #!/usr/bin/env ruby
 #coding:utf-8
 
-VERSION = "iwm20241014"
+VERSION = "iwm20250423"
 TITLE = "ファイル [1] から [2] へ上書きコピー"
 
 require "fileutils"
 
-class ClassTerminal
-	def begin()
-		print(
-			"\n",
-			"\033[97;104m ", TITLE, " \033[49m",
-			"\n"
-		)
+class Class_Terminal
+	def clear()
+		$stderr.print "\033[2J", "\033[1;1H", "\033[0m", "\033[0G"
 	end
 
-	def end()
-		Term.reset
-		print(
-			"\n",
-			"(END)",
-			"\n\n"
-		)
+	def reset()
+		$stderr.print "\033[0m"
+	end
+
+	def begin(sTitle = "")
+		if sTitle.length == 0
+			return
+		end
+		$stderr.print "\n", "\033[97;44m ", sTitle, " \033[49m", "\n"
+	end
+
+	def end(bInput = true)
+		$stderr.print "\033[0m", "(END)"
+		if bInput == true
+			STDIN.gets
+		end
+		$stderr.print "\n\n"
 		exit
 	end
 
-	def clear
-		print "\033[2J\033[1;1H"
+	def abort()
+		$stderr.print "\033[0m", "\033[0G", "\n\n"
+		exit
 	end
 
-	def reset
-		print "\033[0m"
+	def cursorOn()
+		$stderr.print "\033[?25h"
+	end
+
+	def cursorOff()
+		$stderr.print "\033[?25l"
 	end
 end
-Term = ClassTerminal.new
+Term = Class_Terminal.new
+
+at_exit do
+	Term.cursorOn()
+end
+
+Signal.trap(:INT) do
+	Term.abort()
+end
 
 def RtnHashDirFile(
 	sIFn = ""
@@ -60,16 +79,11 @@ def SubHelp()
 		"\033[5G", "\033[96mruby \033[97m#{bn} \033[91m\"./file1\" \"./file2\" ...",
 		"\n"
 	)
-	Term.end
+	Term.end(false)
 end
 
-Signal.trap(:INT) do
-	Term.reset
-	exit
-end
-
-Term.clear
-Term.begin
+Term.clear()
+Term.begin(TITLE)
 
 if ARGV.length < 2 || ARGV[0] == "--help" || ARGV[0] == "-h"
 	SubHelp()
@@ -103,4 +117,4 @@ if STDIN.gets.strip == "1"
 	end
 end
 
-Term.end
+Term.end(false)

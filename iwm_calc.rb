@@ -3,27 +3,54 @@
 
 require "reline"
 
-VERSION = "iwm20241116"
+VERSION = "iwm20250423"
 
-class ClassTerminal
-	def end()
-		Term.reset
-		exit
-	end
-
+class Class_Terminal
 	def clear()
-		print "\033[2J\033[1;1H"
+		$stderr.print "\033[2J", "\033[1;1H", "\033[0m", "\033[0G"
 	end
 
 	def reset()
-		print "\033[0m"
+		$stderr.print "\033[0m"
+	end
+
+	def begin(sTitle = "")
+		if sTitle.length == 0
+			return
+		end
+		$stderr.print "\n", "\033[97;44m ", sTitle, " \033[49m", "\n"
+	end
+
+	def end(bInput = true)
+		$stderr.print "\033[0m", "(END)"
+		if bInput == true
+			STDIN.gets
+		end
+		$stderr.print "\n\n"
+		exit
+	end
+
+	def abort()
+		$stderr.print "\033[0m", "\033[0G", "\n\n"
+		exit
+	end
+
+	def cursorOn()
+		$stderr.print "\033[?25h"
+	end
+
+	def cursorOff()
+		$stderr.print "\033[?25l"
 	end
 end
-Term = ClassTerminal.new
+Term = Class_Terminal.new
+
+at_exit do
+	Term.cursorOn()
+end
 
 Signal.trap(:INT) do
-	Term.reset
-	exit
+	Term.abort()
 end
 
 WIDTH = 60
@@ -86,15 +113,15 @@ def SubHelp()
 		if a1[4] then print "\033[32G", "\033[95m", a1[4] end
 		puts "\033[49m"
 	end
-	Term.reset
+	Term.reset()
 end
 
 # User Defined
 $AryUserDefined = []
 
 def main()
-	Term.clear
-	Term.reset
+	Term.clear()
+	Term.reset()
 	SubHelp()
 
 	while true
@@ -117,7 +144,7 @@ def main()
 
 			# .q
 			when /\.q$/i
-				break
+				Term.end(false)
 
 			# .r
 			when ".r"
@@ -231,7 +258,7 @@ def main()
 				puts
 		end
 
-		Term.reset
+		Term.reset()
 	end
 end
 
